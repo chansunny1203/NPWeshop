@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>消費有愛 — NPV 捐款感謝狀</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@600;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: #e8e0d4;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow-x: hidden;
+  }
+
+  /* ── Floating particles ── */
+  .particles {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+
+  .particle {
+    position: absolute;
+    bottom: -40px;
+    opacity: 0;
+    animation: floatUp var(--dur) var(--del) ease-in infinite;
+  }
+
+  @keyframes floatUp {
+    0% { opacity: 0; transform: translateY(0) rotate(0deg) scale(0.5); }
+    10% { opacity: 0.6; }
+    60% { opacity: 0.3; }
+    100% { opacity: 0; transform: translateY(-100vh) rotate(var(--rot)) scale(1); }
+  }
+
+  /* ── Cheque container ── */
+  .cheque-wrapper {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 780px;
+    animation: chequeIn 0.8s ease-out;
+  }
+
+  @keyframes chequeIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .cheque {
+    background: #FFFDF8;
+    border: 3px solid #960021;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+      0 2px 20px rgba(150, 0, 33, 0.1),
+      0 1px 6px rgba(0,0,0,0.06),
+      inset 0 0 0 1px rgba(150, 0, 33, 0.08);
+  }
+
+  /* ── Perforated left edge ── */
+  .cheque::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 28px;
+    background:
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 8px,
+        #e8e0d4 8px,
+        #e8e0d4 12px
+      );
+    border-right: 1.5px dashed #ccc;
+    z-index: 2;
+  }
+
+  /* ── Guilloche-style top border ── */
+  .cheque-top-border {
+    height: 6px;
+    background: repeating-linear-gradient(
+      90deg,
+      #960021 0px, #960021 4px,
+      #F5A623 4px, #F5A623 8px,
+      #960021 8px, #960021 12px,
+      transparent 12px, transparent 14px
+    );
+  }
+
+  /* ── Paw print decorative strip ── */
+  .paw-strip {
+    width: 100%;
+    height: 40px;
+    background: url('receipt-pawprints.png') center/cover no-repeat;
+    opacity: 0.35;
+  }
+
+  /* ── Header row ── */
+  .cheque-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px 8px 44px;
+  }
+
+  .org-logo {
+    animation: fadeIn 0.6s 0.2s ease-out both;
+  }
+
+  .org-logo img {
+    height: 36px;
+    width: auto;
+    object-fit: contain;
+  }
+
+  .cheque-number {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    color: #bbb;
+    letter-spacing: 2px;
+    animation: fadeIn 0.6s 0.3s ease-out both;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Main body ── */
+  .cheque-body {
+    display: flex;
+    align-items: stretch;
+    padding: 0 24px 0 44px;
+    gap: 16px;
+    min-height: 200px;
+  }
+
+  /* Left: animal illustration */
+  .cheque-illustration {
+    flex: 0 0 170px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.6s 0.4s ease-out both;
+  }
+
+  .cheque-illustration img {
+    width: 160px;
+    height: 160px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.08));
+    animation: animalBounce 3s ease-in-out infinite;
+  }
+
+  @keyframes animalBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  /* Center: main content */
+  .cheque-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 0;
+  }
+
+  /* Campaign title */
+  .campaign-line {
+    animation: fadeIn 0.6s 0.5s ease-out both;
+  }
+
+  .campaign-label {
+    font-size: 10px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 2px;
+  }
+
+  .campaign-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 22px;
+    font-weight: 900;
+    color: #960021;
+  }
+
+  .campaign-title-en {
+    font-size: 11px;
+    color: #c0c0c0;
+    font-weight: 400;
+    margin-top: 1px;
+  }
+
+  /* Pay to line (customer name) */
+  .pay-to-line {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    animation: fadeIn 0.6s 0.6s ease-out both;
+  }
+
+  .pay-to-label {
+    font-size: 11px;
+    color: #999;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .pay-to-name {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #333;
+    border-bottom: 1.5px solid #960021;
+    flex: 1;
+    padding-bottom: 2px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Amount box */
+  .amount-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: fadeIn 0.6s 0.7s ease-out both;
+  }
+
+  .amount-label {
+    font-size: 11px;
+    color: #999;
+    white-space: nowrap;
+  }
+
+  .amount-box {
+    display: inline-flex;
+    align-items: center;
+    border: 2px solid #960021;
+    border-radius: 6px;
+    padding: 4px 14px;
+    background: linear-gradient(135deg, #FFF8F0, #FFF2E0);
+  }
+
+  .amount-currency {
+    font-size: 13px;
+    font-weight: 700;
+    color: #960021;
+    margin-right: 4px;
+  }
+
+  .amount-value {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: #960021;
+    line-height: 1;
+  }
+
+  .amount-words {
+    font-size: 11px;
+    color: #888;
+    margin-left: 10px;
+    border-bottom: 1px dashed #ccc;
+    padding-bottom: 1px;
+  }
+
+  /* Purpose line */
+  .purpose-line {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    animation: fadeIn 0.6s 0.8s ease-out both;
+  }
+
+  .purpose-label {
+    font-size: 11px;
+    color: #999;
+    white-space: nowrap;
+  }
+
+  .purpose-value {
+    font-size: 12px;
+    color: #666;
+    border-bottom: 1px solid #ddd;
+    flex: 1;
+    padding-bottom: 2px;
+  }
+
+  .purpose-value span {
+    margin: 0 6px;
+    color: #bbb;
+  }
+
+  /* Right: badge + date */
+  .cheque-right {
+    flex: 0 0 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 12px 0;
+    animation: fadeIn 0.6s 0.9s ease-out both;
+  }
+
+  .paw-stamp {
+    width: 80px;
+    height: 80px;
+    animation: stampIn 0.6s 1.0s ease-out both, stampPulse 3s 1.6s ease-in-out infinite;
+    filter: drop-shadow(0 2px 6px rgba(150, 0, 33, 0.2));
+  }
+
+  .paw-stamp img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  @keyframes stampIn {
+    0% { opacity: 0; transform: scale(1.5) rotate(-15deg); }
+    60% { opacity: 1; transform: scale(0.95) rotate(2deg); }
+    100% { opacity: 1; transform: scale(1) rotate(-3deg); }
+  }
+
+  @keyframes stampPulse {
+    0%, 100% { transform: scale(1) rotate(-3deg); }
+    50% { transform: scale(1.05) rotate(-1deg); }
+  }
+
+  .cheque-date {
+    font-size: 11px;
+    color: #aaa;
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  /* ── Bottom section ── */
+  .cheque-bottom {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 8px 24px 14px 44px;
+    animation: fadeIn 0.6s 1.0s ease-out both;
+  }
+
+  .fund-usage {
+    display: flex;
+    gap: 14px;
+  }
+
+  .fund-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: #888;
+  }
+
+  .fund-icon {
+    font-size: 14px;
+  }
+
+  .signature-area {
+    text-align: center;
+  }
+
+  .signature-line {
+    width: 120px;
+    border-bottom: 1.5px solid #333;
+    margin-bottom: 3px;
+    position: relative;
+  }
+
+  .signature-text {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 13px;
+    color: #960021;
+    font-weight: 700;
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-3deg);
+    white-space: nowrap;
+  }
+
+  .signature-label {
+    font-size: 9px;
+    color: #bbb;
+    letter-spacing: 1px;
+  }
+
+  /* ── Bottom decorative border ── */
+  .cheque-bottom-border {
+    height: 6px;
+    background: repeating-linear-gradient(
+      90deg,
+      #960021 0px, #960021 4px,
+      #F5A623 4px, #F5A623 8px,
+      #960021 8px, #960021 12px,
+      transparent 12px, transparent 14px
+    );
+  }
+
+  /* ── Watermark ── */
+  .watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-20deg);
+    font-family: 'Noto Serif TC', serif;
+    font-size: 60px;
+    font-weight: 900;
+    color: rgba(150, 0, 33, 0.03);
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Footer outside cheque ── */
+  .share-hint {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 12px;
+    color: #aaa;
+    animation: fadeIn 0.6s 1.2s ease-out both;
+  }
+
+  /* ── Mobile responsive ── */
+  @media (max-width: 600px) {
+    body { padding: 10px; }
+
+    .cheque-body {
+      flex-wrap: wrap;
+      padding: 0 16px 0 36px;
+    }
+
+    .cheque-illustration {
+      flex: 0 0 100%;
+      justify-content: center;
+      padding-top: 8px;
+    }
+
+    .cheque-illustration img {
+      width: 120px;
+      height: 120px;
+    }
+
+    .cheque-content {
+      padding: 8px 0;
+    }
+
+    .cheque-right {
+      flex: 0 0 100%;
+      flex-direction: row;
+      justify-content: center;
+      padding: 8px 0;
+    }
+
+    .campaign-title { font-size: 18px; }
+    .pay-to-name { font-size: 17px; }
+    .amount-value { font-size: 24px; }
+
+    .cheque-header { padding-left: 36px; }
+    .cheque-bottom {
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+      padding-left: 36px;
+    }
+
+    .fund-usage { flex-wrap: wrap; justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Floating particles -->
+<div class="particles" id="particles"></div>
+
+<!-- Cheque -->
+<div class="cheque-wrapper">
+  <div class="cheque">
+    <!-- Watermark -->
+    <div class="watermark">NPV DONATION</div>
+
+    <!-- Top decorative border -->
+    <div class="cheque-top-border"></div>
+
+    <!-- Paw print strip -->
+    <div class="paw-strip"></div>
+
+    <!-- Header -->
+    <div class="cheque-header">
+      <div class="org-logo">
+        <img src="npv-logo.png" alt="NPV 非牟利獸醫服務協會">
+      </div>
+      <div class="cheque-number" id="chequeNo">No. 20260404-001</div>
+    </div>
+
+    <!-- Body -->
+    <div class="cheque-body">
+      <!-- Left: cartoon animals -->
+      <div class="cheque-illustration">
+        <img src="receipt-animals.png" alt="Cartoon cat and dog">
+      </div>
+
+      <!-- Center: main info -->
+      <div class="cheque-content">
+        <div class="campaign-line">
+          <div class="campaign-label">Donation Campaign</div>
+          <div class="campaign-title">消費有愛</div>
+          <div class="campaign-title-en">Shop With Heart — World Stray Animals Day 2026</div>
+        </div>
+
+        <div class="pay-to-line">
+          <span class="pay-to-label">致謝 PAY TO</span>
+          <span class="pay-to-name" id="customerName">親愛的顧客</span>
+        </div>
+
+        <div class="amount-row">
+          <span class="amount-label">捐款金額 AMOUNT</span>
+          <div class="amount-box">
+            <span class="amount-currency">HK$</span>
+            <span class="amount-value" id="donationAmount">100</span>
+          </div>
+          <span class="amount-words">港幣壹佰元正</span>
+        </div>
+
+        <div class="purpose-line">
+          <span class="purpose-label">用途 FOR</span>
+          <span class="purpose-value">NPV 流浪動物基金 — 醫療<span>·</span>絕育<span>·</span>餵飼<span>·</span>庇護</span>
+        </div>
+      </div>
+
+      <!-- Right: badge -->
+      <div class="cheque-right">
+        <div class="paw-stamp">
+          <img src="receipt-paw-stamp.png" alt="Paw stamp">
+        </div>
+        <div class="cheque-date" id="chequeDate">
+          日期 DATE<br>
+          <strong>2026.04.04</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom -->
+    <div class="cheque-bottom">
+      <div class="fund-usage">
+        <div class="fund-item"><span class="fund-icon">🏥</span> 醫療救助</div>
+        <div class="fund-item"><span class="fund-icon">✂️</span> 絕育服務</div>
+        <div class="fund-item"><span class="fund-icon">🍚</span> 糧食供應</div>
+        <div class="fund-item"><span class="fund-icon">🏠</span> 臨時庇護</div>
+      </div>
+      <div class="signature-area">
+        <div class="signature-line">
+          <span class="signature-text">NPV</span>
+        </div>
+        <div class="signature-label">AUTHORISED SIGNATURE</div>
+      </div>
+    </div>
+
+    <!-- Paw print strip bottom -->
+    <div class="paw-strip"></div>
+
+    <!-- Bottom decorative border -->
+    <div class="cheque-bottom-border"></div>
+  </div>
+
+  <div class="share-hint">
+    <p>截圖分享，讓更多人一齊「消費有愛」 ❤️</p>
+  </div>
+</div>
+
+<script>
+  // ── Parse URL parameters ──
+  const params = new URLSearchParams(window.location.search);
+  const name = params.get('name');
+  const amount = params.get('amount');
+  const date = params.get('date');
+  const orderNo = params.get('order');
+
+  if (name) {
+    document.getElementById('customerName').textContent = name;
+  }
+  if (amount) {
+    document.getElementById('donationAmount').textContent = amount;
+    // Update Chinese amount words for common values
+    const amountWords = {
+      '100': '港幣壹佰元正',
+      '200': '港幣貳佰元正',
+      '300': '港幣叁佰元正',
+      '400': '港幣肆佰元正',
+      '500': '港幣伍佰元正',
+    };
+    const wordsEl = document.querySelector('.amount-words');
+    if (amountWords[amount]) {
+      wordsEl.textContent = amountWords[amount];
+    } else {
+      wordsEl.textContent = 'HK$' + amount;
+    }
+  }
+  if (date) {
+    document.getElementById('chequeDate').innerHTML = '日期 DATE<br><strong>' + date + '</strong>';
+  }
+  if (orderNo) {
+    document.getElementById('chequeNo').textContent = 'No. ' + orderNo;
+  }
+
+  // ── Generate floating particles ──
+  const container = document.getElementById('particles');
+  const emojis = ['❤️', '🧡', '💛', '🩷', '🐾', '🐾', '💕', '🐱', '🐶'];
+
+  for (let i = 0; i < 15; i++) {
+    const el = document.createElement('div');
+    el.className = 'particle';
+    el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    el.style.left = Math.random() * 100 + '%';
+    el.style.fontSize = (14 + Math.random() * 12) + 'px';
+    el.style.setProperty('--dur', (7 + Math.random() * 6) + 's');
+    el.style.setProperty('--del', (Math.random() * 10) + 's');
+    el.style.setProperty('--rot', (Math.random() * 50 - 25) + 'deg');
+    container.appendChild(el);
+  }
+</script>
+</body>
+</html>
